@@ -9,7 +9,7 @@ use serenity::{
 use crate::api::bard::Bard;
 use crate::api::chattable::Chattable;
 
-pub fn run(options: &[CommandDataOption]) -> String {
+pub async fn run(options: &[CommandDataOption]) -> String {
     let option = options
         .get(0)
         .expect("No instruction provided")
@@ -19,7 +19,11 @@ pub fn run(options: &[CommandDataOption]) -> String {
 
     if let CommandDataOptionValue::String(instruction) = option {
         let bard = Bard::new(None);
-        bard.chat(instruction.to_string())
+
+        match bard.chat(instruction.to_string()).await {
+            Ok(response) => response,
+            Err(e) => format!("Failed to chat: {}", e).to_string(),
+        }
     } else {
         "Invalid instruction".to_string()
     }

@@ -21,22 +21,29 @@ struct Handler;
 impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
-            println!("Received command: {:#?}", command);
-
-            let content = match command.data.name.as_str() {
-                "chat" => commands::chat::run(&command.data.options),
-                _ => "Unknown Command".to_string(),
-            };
+            let command_name = &command.data.name;
+            println!("Received command: {:#?}", command_name);
 
             if let Err(e) = command
-                .create_interaction_response(&ctx.http, |resp| {
-                    resp.kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|msg| msg.content(content))
+                .create_interaction_response(&ctx.http, |response| {
+                    response.kind(InteractionResponseType::DeferredChannelMessageWithSource)
                 })
                 .await
             {
                 eprintln!("Cannot respond to application command: {}", e);
+            }
+
+            let content = match command_name.as_str() {
+                "chat" => commands::chat::run(&command.data.options).await,
+                _ => "Unknown Command".to_string(),
             };
+
+            if let Err(e) = command
+                .edit_original_interaction_response(&ctx.http, |response| response.content(content))
+                .await
+            {
+                eprintln!("Cannot edit response: {}", e);
+            }
         };
     }
 
@@ -50,7 +57,13 @@ impl EventHandler for Handler {
             .map(|register_fn| Command::create_global_application_command(&ctx.http, register_fn));
         let commands: Vec<Result<Command, Error>> = join_all(command_register_futures).await;
 
-        println!("Registered command: {:#?}", commands);
+        println!(
+            "Registered command: {:#?}",
+            commands
+                .iter()
+                .map(|command| command.as_ref().map(|command| &command.name))
+                .collect::<Vec<Result<&String, &Error>>>()
+        );
     }
 }
 

@@ -1,3 +1,8 @@
+use async_trait::async_trait;
+
+#[async_trait]
 pub trait Chattable {
-    fn chat(self: &Self, instruction: String) -> String;
+    type Error;
+
+    async fn chat(self: &Self, instruction: String) -> Result<String, Self::Error>;
 }
