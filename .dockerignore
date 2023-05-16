@@ -1,0 +1,7 @@
+.git
+target/
+.gitignore
+.dockerignore
+.env
+Dockerfile
+debug.log
