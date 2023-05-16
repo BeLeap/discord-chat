@@ -12,6 +12,7 @@ use serenity::{
 };
 use std::{env, sync::Arc};
 
+mod api;
 mod commands;
 
 struct Handler;

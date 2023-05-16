@@ -6,6 +6,9 @@ use serenity::{
     },
 };
 
+use crate::api::bard::Bard;
+use crate::api::chattable::Chattable;
+
 pub fn run(options: &[CommandDataOption]) -> String {
     let option = options
         .get(0)
@@ -15,7 +18,8 @@ pub fn run(options: &[CommandDataOption]) -> String {
         .expect("Expected valid object");
 
     if let CommandDataOptionValue::String(instruction) = option {
-        format!("Response for {}", instruction).to_string()
+        let bard = Bard::new(None);
+        bard.chat(instruction.to_string())
     } else {
         "Invalid instruction".to_string()
     }
