@@ -23,7 +23,7 @@ impl EventHandler for Handler {
             println!("Received command: {:#?}", command);
 
             let content = match command.data.name.as_str() {
-                "ping" => "pong".to_string(),
+                "chat" => commands::chat::run(),
                 _ => "Unknown Command".to_string(),
             };
 
@@ -44,7 +44,7 @@ impl EventHandler for Handler {
 
         let ctx = Arc::new(ctx);
 
-        let register_fns = [commands::ping::register];
+        let register_fns = [commands::chat::register];
         let command_register_futures = register_fns
             .map(|register_fn| Command::create_global_application_command(&ctx.http, register_fn));
         let commands: Vec<Result<Command, Error>> = join_all(command_register_futures).await;
