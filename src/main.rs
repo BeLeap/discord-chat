@@ -20,6 +20,8 @@ struct Handler;
 impl EventHandler for Handler {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
+            println!("Received command: {:#?}", command);
+
             let content = match command.data.name.as_str() {
                 "ping" => "pong".to_string(),
                 _ => "Unknown Command".to_string(),
@@ -27,7 +29,7 @@ impl EventHandler for Handler {
 
             if let Err(e) = command
                 .create_interaction_response(&ctx.http, |resp| {
-                    resp.kind(InteractionResponseType::Pong)
+                    resp.kind(InteractionResponseType::ChannelMessageWithSource)
                         .interaction_response_data(|msg| msg.content(content))
                 })
                 .await
