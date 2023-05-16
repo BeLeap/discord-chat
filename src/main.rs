@@ -23,7 +23,7 @@ impl EventHandler for Handler {
             println!("Received command: {:#?}", command);
 
             let content = match command.data.name.as_str() {
-                "chat" => commands::chat::run(),
+                "chat" => commands::chat::run(&command.data.options),
                 _ => "Unknown Command".to_string(),
             };
 
