@@ -76,15 +76,14 @@ impl Chattable for Cohere {
     type Error = CohereError;
 
     async fn chat(&self, instruction: String) -> Result<String, CohereError> {
-        let response_sign = "### Response:";
         let prompt = format!(
             "Below is an instruction that describes a task. Write a response that appropriately completes the request.
 ### Instruction:
 {}
 
-{}
+### Response:
         ",
-            instruction, response_sign
+            instruction
         );
         let request = CohereRequest { prompt };
 
