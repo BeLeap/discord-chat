@@ -1,9 +1,10 @@
 use core::fmt;
-use std::env;
 
 use async_trait::async_trait;
 use reqwest::{header, Client, StatusCode};
 use serde::{Deserialize, Serialize};
+
+use crate::SECRETS;
 
 use super::chattable::Chattable;
 
@@ -13,14 +14,9 @@ pub struct Bard {
 }
 
 impl Bard {
-    pub fn new(token: Option<String>) -> Bard {
-        let token = match token {
-            Some(token) => token,
-            None => match env::var("BARD_API_TOKEN") {
-                Ok(token) => token,
-                Err(e) => panic!("Bard api token not provided: {:#?}", e),
-            },
-        };
+    pub fn new() -> Bard {
+        let secrets = SECRETS.lock().unwrap();
+        let token = secrets.get("BARD_API_TOKEN").unwrap();
         let mut headers = header::HeaderMap::new();
         headers.insert(
             header::AUTHORIZATION,

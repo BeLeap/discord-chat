@@ -18,7 +18,7 @@ pub async fn run(options: &[CommandDataOption]) -> String {
         .expect("Expected valid object");
 
     if let CommandDataOptionValue::String(instruction) = option {
-        let bard = Bard::new(None);
+        let bard = Bard::new();
 
         match bard.chat(instruction.to_string()).await {
             Ok(response) => response,

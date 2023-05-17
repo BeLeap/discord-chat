@@ -1,5 +1,6 @@
-use dotenvy::dotenv;
+use anyhow::anyhow;
 use futures::future::join_all;
+use lazy_static::lazy_static;
 use serenity::{
     async_trait,
     model::prelude::{
@@ -10,10 +11,18 @@ use serenity::{
     prelude::{Context, EventHandler, GatewayIntents},
     Client, Error,
 };
-use std::{env, sync::Arc};
+use shuttle_secrets::SecretStore;
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 mod api;
 mod commands;
+
+lazy_static! {
+    pub static ref SECRETS: Mutex<HashMap<&'static str, String>> = Mutex::new(HashMap::new());
+}
 
 struct Handler;
 
@@ -67,20 +76,30 @@ impl EventHandler for Handler {
     }
 }
 
-#[tokio::main]
-async fn main() {
-    dotenv().expect(".env file not found");
-    let discord_token = match env::var("DISCORD_TOKEN") {
-        Ok(value) => value,
-        Err(e) => panic!("{}", e),
+#[shuttle_runtime::main]
+async fn serenity(
+    #[shuttle_secrets::Secrets] secret_store: SecretStore,
+) -> shuttle_serenity::ShuttleSerenity {
+    let bard_api_token = if let Some(value) = secret_store.get("BARD_API_TOKEN") {
+        value
+    } else {
+        return Err(anyhow!("'BARD_API_TOKEN' not found").into());
+    };
+    SECRETS
+        .lock()
+        .unwrap()
+        .insert("BARD_API_TOKEN", bard_api_token);
+
+    let discord_token = if let Some(value) = secret_store.get("DISCORD_TOKEN") {
+        value
+    } else {
+        return Err(anyhow!("'DISCORD_TOKEN' not found").into());
     };
 
-    let mut client = Client::builder(&discord_token, GatewayIntents::empty())
+    let client = Client::builder(&discord_token, GatewayIntents::empty())
         .event_handler(Handler)
         .await
         .expect("Error creating client");
 
-    if let Err(e) = client.start().await {
-        eprintln!("Client error: {:?}", e);
-    }
+    Ok(client.into())
 }
