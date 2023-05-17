@@ -80,15 +80,15 @@ impl EventHandler for Handler {
 async fn serenity(
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
 ) -> shuttle_serenity::ShuttleSerenity {
-    let bard_api_token = if let Some(value) = secret_store.get("BARD_API_TOKEN") {
+    let cohere_api_token = if let Some(value) = secret_store.get("COHERE_API_TOKEN") {
         value
     } else {
-        return Err(anyhow!("'BARD_API_TOKEN' not found").into());
+        return Err(anyhow!("'COHERE_API_TOKEN' not found").into());
     };
     SECRETS
         .lock()
         .unwrap()
-        .insert("BARD_API_TOKEN", bard_api_token);
+        .insert("COHERE_API_TOKEN", cohere_api_token);
 
     let discord_token = if let Some(value) = secret_store.get("DISCORD_TOKEN") {
         value

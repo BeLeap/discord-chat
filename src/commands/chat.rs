@@ -6,8 +6,8 @@ use serenity::{
     },
 };
 
-use crate::api::bard::Bard;
 use crate::api::chattable::Chattable;
+use crate::api::cohere::Cohere;
 
 pub async fn run(options: &[CommandDataOption]) -> String {
     let option = options
@@ -18,9 +18,9 @@ pub async fn run(options: &[CommandDataOption]) -> String {
         .expect("Expected valid object");
 
     if let CommandDataOptionValue::String(instruction) = option {
-        let bard = Bard::new();
+        let hf_alpaca = Cohere::new();
 
-        match bard.chat(instruction.to_string()).await {
+        match hf_alpaca.chat(instruction.to_string()).await {
             Ok(response) => response,
             Err(e) => format!("Failed to chat: {}", e).to_string(),
         }
@@ -32,12 +32,12 @@ pub async fn run(options: &[CommandDataOption]) -> String {
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
     command
         .name("chat")
-        .description("Chat with bard")
+        .description("Chat with LLM")
         .kind(CommandType::ChatInput)
         .create_option(|option| {
             option
                 .name("instruction")
-                .description("Instruction for bard")
+                .description("Instruction for LLM")
                 .kind(CommandOptionType::String)
                 .required(true)
         })
