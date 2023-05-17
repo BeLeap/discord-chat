@@ -59,7 +59,10 @@ impl fmt::Display for CohereErrorKind {
 #[derive(Debug, Serialize)]
 struct CohereRequest {
     prompt: String,
+    model: String,
     max_tokens: u32,
+    temperature: f32,
+    frequency_penalty: f32,
     return_likelihoods: ReturnLikelihoods,
 }
 
@@ -84,20 +87,27 @@ impl Chattable for Cohere {
 
     async fn chat(&self, instruction: String) -> Result<String, CohereError> {
         let prompt = format!(
-            "Transcript of a dialog, where the User interacts with an Assistant named Bob. Bob is helpful, kind, honest, good at writing, and never fails to answer the User's requests immediately and with precision.
+            "
+Transcript of single conversation between. USER and SIA.
+SIA stands for Super Intelligent Assistant.
+SIA answers using markdown format.
+SIA is detailed, polite, helpful, honest.
+SIA is an expert on everything.
+SIA thinks everything step-by-step.
+SIA answers with example if possible.
+SIA answers to USER in single paragraph.
 
-User: Hello, Bob.
-Bob: Hello. How may I help you today?
-User: Please tell me the largest city in Europe.
-Bob: Sure. The largest city in Europe is Moscow, the capital of Russia.
 User: {}
-Bob:",
+SIA:",
             instruction
         );
         let request = CohereRequest {
             prompt,
+            model: "command-nightly".to_string(),
             max_tokens: 300,
+            temperature: 0.9,
             return_likelihoods: ReturnLikelihoods::NONE,
+            frequency_penalty: 0.7,
         };
 
         let request = self
