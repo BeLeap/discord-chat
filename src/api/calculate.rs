@@ -112,11 +112,11 @@ fn parse_factor(tokens: &mut Peekable<impl Iterator<Item = Token>>) -> f64 {
             }
             "<<" => {
                 tokens.next();
-                base = (base as i64) << (parse_factor(tokens) as i64) as f64;
+                base = ((base as i64) << (parse_factor(tokens) as i64)) as f64;
             }
             ">>" => {
                 tokens.next();
-                base = (base as i64) >> (parse_factor(tokens) as i64) as f64;
+                base = ((base as i64) >> (parse_factor(tokens) as i64)) as f64;
             }
             "!" => {
                 tokens.next();
