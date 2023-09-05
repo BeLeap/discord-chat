@@ -24,6 +24,18 @@ fn tokenize(expression: &str) -> Vec<Token> {
                 '+' | '-' | '*' | '/' | '^' | '(' | ')' | '%' | '!' => {
                     tokens.push(Token::Operator(c.to_string()));
                 }
+                '<' => {
+                    if let Some(&'<') = chars.peek() {
+                        chars.next();
+                        tokens.push(Token::Operator("<<".to_string()));
+                    }
+                }
+                '>' => {
+                    if let Some(&'>') = chars.peek() {
+                        chars.next();
+                        tokens.push(Token::Operator(">>".to_string()));
+                    }
+                }
                 'l' => {
                     if let Some(&'o') = chars.peek() {
                         chars.next();
