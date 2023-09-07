@@ -44,6 +44,7 @@ impl EventHandler for Handler {
 
             let content = match command_name.as_str() {
                 "chat" => commands::chat::run(&command.data.options).await,
+                "calc" => commands::calc::run(&command.data.options).await,
                 _ => "Unknown Command".to_string(),
             };
 
@@ -61,7 +62,7 @@ impl EventHandler for Handler {
 
         let ctx = Arc::new(ctx);
 
-        let register_fns = [commands::chat::register];
+        let register_fns = [commands::chat::register, commands::calc::register];
         let command_register_futures = register_fns
             .map(|register_fn| Command::create_global_application_command(&ctx.http, register_fn));
         let commands: Vec<Result<Command, Error>> = join_all(command_register_futures).await;
