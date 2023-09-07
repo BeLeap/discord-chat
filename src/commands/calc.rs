@@ -8,18 +8,20 @@ use serenity::{
 use crate::api::calculator::evaluate;
 
 pub async fn run(options: &[CommandDataOption]) -> String {
-    let expression = if let Some(CommandDataOption {
-        value: Some(CommandDataOptionValue::String(expr)),
-        ..
-    }) = options.get(0) {
-        expr
-    } else {
-        return "Invalid expression".to_string();
-    };
+    let expr = options
+        .get(0)
+        .expect("No expression provided")
+        .resolved
+        .as_ref()
+        .expect("Expected valid object");
 
-    let result = evaluate(expression);
+    if let CommandDataOptionValue::String(expression) = expr {
+        let result = evaluate(expression);
     
-    format!("{} = {}", expression, result)
+        format!("{} = {}", expression, result)
+    } else {
+        "Invalid expression".to_string()
+    }
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
