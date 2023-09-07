@@ -1,2 +1,2 @@
 pub mod chat;
-pub mod clac;
+pub mod calc;
